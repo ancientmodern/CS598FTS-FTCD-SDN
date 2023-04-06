@@ -37,6 +37,7 @@ class kvStore(SyncObj):
     
     @replicated
     def setDefault(self, dpid):
+        print("setdefault {}".format(dpid))
         self.mac_to_port.setdefault(dpid, {})
         print("setdefault {}".format(dpid))
     
