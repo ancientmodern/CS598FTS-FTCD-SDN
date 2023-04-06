@@ -94,7 +94,7 @@ class SimpleSwitch(app_manager.RyuApp):
 
         dpid = datapath.id
         self.mac_to_port.setDefault(dpid)
-
+        self.mac_to_port.printAll()
         self.logger.info("packet in %s %s %s %s", dpid, src, dst, msg.in_port)
 
         # learn a mac address to avoid FLOOD next time.
@@ -125,7 +125,6 @@ class SimpleSwitch(app_manager.RyuApp):
             datapath=datapath, buffer_id=msg.buffer_id, in_port=msg.in_port,
             actions=actions, data=data)
         datapath.send_msg(out)
-        self.mac_to_port.printAll()
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
     def _port_status_handler(self, ev):
