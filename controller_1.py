@@ -35,12 +35,13 @@ class kvStore(SyncObj):
         super(kvStore, self).__init__('10.10.1.4:9000', ['10.10.1.5:9000', '10.10.1.3:9000'])
         self.mac_to_port = {}
     
-    def setDefault(self, dpid):
-        print("in setDefault")
-        self.mac_to_port.setdefault(dpid, {})
+    # def setDefault(self, dpid):
+    #     print("in setDefault")
+    #     self.mac_to_port.setdefault(dpid, {})
     
     @replicated
     def write(self, dpid, src, in_port):
+        self.mac_to_port.setdefault(dpid, {})
         self.mac_to_port[dpid][src] = in_port
     
     def read(self, dpid, dst):
@@ -95,7 +96,7 @@ class SimpleSwitch(app_manager.RyuApp):
         src = eth.src
 
         dpid = datapath.id
-        self.mac_to_port.setDefault(dpid)
+        # self.mac_to_port.setDefault(dpid)
         self.mac_to_port.printAll()
         self.logger.info("packet in %s %s %s %s", dpid, src, dst, msg.in_port)
 
