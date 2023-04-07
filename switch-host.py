@@ -22,7 +22,7 @@ c3 = RemoteController( 'c3', ip='10.10.1.3', port=6633 )
 # c5 = RemoteController( 'c5', ip='10.10.1.6', port=6633 )
 
 # cmap = { 's1': [c1,c2,c3,c4,c5], 's2': [c1,c2,c3,c4,c5], 's3': [c1,c2,c3,c4,c5], 's4': [c1,c2,c3,c4,c5], 's5': [c1,c2,c3,c4,c5], 's6': [c1,c2,c3,c4,c5] }
-cmap = {'s1': [c1], 's2': [c2], 's3': [c3]}
+cmap = {'s1': [c1, c2, c3], 's2': [c1, c2, c3], 's3': [c1, c2, c3]}
 
 
 class MultiSwitch( OVSSwitch ):
