@@ -96,6 +96,7 @@ class SimpleSwitch(app_manager.RyuApp):
 
         dpid = datapath.id
         self.logger.info("set default")
+        print("print set default")
         self.mac_to_port.setDefault(dpid)
         self.logger.info("print All")
         self.mac_to_port.printAll()
