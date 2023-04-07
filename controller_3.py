@@ -35,12 +35,12 @@ class kvStore(SyncObj):
         super(kvStore, self).__init__('10.10.1.3:9000', ['10.10.1.4:9000', '10.10.1.5:9000'])
         self.mac_to_port = {}
     
-    # def setDefault(self, dpid):
-    #     self.mac_to_port.setdefault(dpid, {})
+    @replicated
+    def setDefault(self, dpid):
+        self.mac_to_port.setdefault(dpid, {})
     
     @replicated
     def write(self, dpid, src, in_port):
-        self.mac_to_port.setdefault(dpid, {})
         self.mac_to_port[dpid][src] = in_port
     
     def read(self, dpid, dst):
@@ -52,11 +52,6 @@ class kvStore(SyncObj):
     def printAll(self):
         print("in print all")
         print(self.mac_to_port)
-        for dpid in self.mac_to_port:
-            for ip in self.mac_to_port[dpid]:
-                port = self.mac_to_port[dpid][ip]
-                print("dpid: {}, ip: {}, port: {}".format(dpid, ip, port))
-
 
 class SimpleSwitch(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION]
@@ -95,7 +90,7 @@ class SimpleSwitch(app_manager.RyuApp):
         src = eth.src
 
         dpid = datapath.id
-        # self.mac_to_port.setDefault(dpid)
+        self.mac_to_port.setDefault(dpid)
         self.mac_to_port.printAll()
         self.logger.info("packet in %s %s %s %s", dpid, src, dst, msg.in_port)
 
