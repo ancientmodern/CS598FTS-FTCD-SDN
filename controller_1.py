@@ -52,6 +52,7 @@ class kvStore(SyncObj):
         return dst in self.mac_to_port[dpid]
 
     def printAll(self):
+        print("in print all")
         for dpid in self.mac_to_port:
             for ip in self.mac_to_port[dpid]:
                 port = self.mac_to_port[dpid][ip]
