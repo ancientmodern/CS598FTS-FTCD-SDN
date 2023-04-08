@@ -32,7 +32,7 @@ from pysyncobj import SyncObj, replicated
 
 class kvStore(SyncObj):
     def __init__(self):
-        super(kvStore, self).__init__('10.10.1.5:9000', ['10.10.1.4:9000', '10.10.1.3:9000'])
+        super(kvStore, self).__init__('10.10.1.5:9000', ['10.10.1.3:9000', '10.10.1.4:9000'])
         self.mac_to_port = {1:{}, 2:{}, 3:{}}
     
     @replicated
@@ -53,12 +53,13 @@ class kvStore(SyncObj):
         print("in print all")
         print(self.mac_to_port)
 
+mac_to_port = kvStore()
+
 class SimpleSwitch(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION]
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch, self).__init__(*args, **kwargs)
-        self.mac_to_port = kvStore()
         self.cnt = 0
 
     def add_flow(self, datapath, in_port, dst, src, actions):
@@ -100,10 +101,10 @@ class SimpleSwitch(app_manager.RyuApp):
 
         # learn a mac address to avoid FLOOD next time.
         # self.mac_to_port[dpid][src] = msg.in_port
-        self.mac_to_port.write(dpid, src, msg.in_port)
+        mac_to_port.write(dpid, src, msg.in_port)
 
-        if self.mac_to_port.isIn(dpid, dst):
-            out_port = self.mac_to_port.read(dpid, dst)
+        if mac_to_port.isIn(dpid, dst):
+            out_port = mac_to_port.read(dpid, dst)
         else:
             out_port = ofproto.OFPP_FLOOD
 
@@ -122,7 +123,7 @@ class SimpleSwitch(app_manager.RyuApp):
             actions=actions, data=data)
         datapath.send_msg(out)
 
-        self.mac_to_port.printAll()
+        mac_to_port.printAll()
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)
     def _port_status_handler(self, ev):
