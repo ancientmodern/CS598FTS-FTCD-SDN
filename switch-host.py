@@ -29,7 +29,9 @@ class MultiSwitch(OVSSwitch):
     "Custom Switch() subclass that connects to different controllers"
 
     def start(self, controllers):
-        return OVSSwitch.start(self, cmap[self.name], protocols='OpenFlow13', flow_table=0)
+        # Delete all flow table entries to disable the flow table
+        self.cmd('ovs-ofctl del-flows ' + self.name)
+        return OVSSwitch.start(self, [cmap[self.name]])
 
 
 topo = TreeTopo(depth=2, fanout=2)
