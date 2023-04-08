@@ -30,9 +30,9 @@ class MultiSwitch(OVSSwitch):
 
     def start(self, controllers):
         # Delete all flow table entries
-        self.cmd(f'ovs-ofctl del-flow {self.name}')
+        self.dpctl('del-flows')
         # Set the priority of the controller flow entry to 100, ensuring that all flows are directed to the controller
-        self.cmd(f'ovs-ofctl add-flow {self.name} cookie=0x0,table=0,priority=100,actions=CONTROLLER:65535')
+        self.dpctl('add-flow', 'cookie=0x0,table=0,priority=100,actions=CONTROLLER:65535')
         return OVSSwitch.start(self, cmap[self.name])
 
 
