@@ -29,10 +29,6 @@ class MultiSwitch(OVSSwitch):
     "Custom Switch() subclass that connects to different controllers"
 
     def start(self, controllers):
-        # Delete all flow table entries
-        self.dpctl('del-flows')
-        # Set the priority of the controller flow entry to 100, ensuring that all flows are directed to the controller
-        self.dpctl('add-flow', 'cookie=0x0,table=0,priority=100,actions=CONTROLLER:65535')
         return OVSSwitch.start(self, cmap[self.name])
 
 
@@ -42,5 +38,13 @@ for c in [c1, c2, c3]:
     net.addController(c)
 net.build()
 net.start()
+
+# Modify flow table entries after the network has started
+for switch in net.switches:
+    # Delete all flow table entries
+    switch.dpctl('del-flows')
+    # Set the priority of the controller flow entry to 100, ensuring that all flows are directed to the controller
+    switch.dpctl('add-flow', 'cookie=0x0,table=0,priority=100,actions=CONTROLLER:65535')
+
 CLI(net)
 net.stop()
