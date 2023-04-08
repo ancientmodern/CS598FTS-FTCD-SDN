@@ -95,7 +95,10 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         # learn a mac address to avoid FLOOD next time.
         # self.mac_to_port[dpid][src] = in_port
-        self.mac_to_port.set_nested_item(dpid, src, in_port, sync=True)
+
+        # only write when necessary, as a sync writing is time-consuming
+        if in_port != self.mac_to_port.get_nested_item(dpid, src):
+            self.mac_to_port.set_nested_item(dpid, src, in_port, sync=True)
 
         if dst in self.mac_to_port.get(dpid):
             out_port = self.mac_to_port.get_nested_item(dpid, dst)
