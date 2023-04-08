@@ -4,7 +4,7 @@ import sys
 class kvStore(SyncObj):
     def __init__(self):
         super(kvStore, self).__init__('10.10.1.4:9000', ['10.10.1.5:9000', '10.10.1.3:9000'])
-        self.mac_to_port = {1: {}, 2: {}}
+        self.mac_to_port = {1: {}, 2: {}, 3:{}}
     
     @replicated
     def setDefault(self, dpid):
