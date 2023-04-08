@@ -47,7 +47,9 @@ while True:
     cmd = get_input(">> ").split()
     if not cmd:
         continue
-    else:
+    elif cmd[0] == "w":
         print("cmd: ", cmd)
-        myCaller.add(int(cmd[0]), int(cmd[1]), int(cmd[2]))
+        myCaller.add(int(cmd[1]), int(cmd[2]), int(cmd[3]))
+    elif cmd[0] == "r":
+        print("cmd: ", cmd)
         myCaller.print()
