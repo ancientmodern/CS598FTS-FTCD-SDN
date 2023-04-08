@@ -37,7 +37,7 @@ class SimpleSwitch(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch, self).__init__(*args, **kwargs)
         self.mac_to_port = ReplDict()
-        syncObj = SyncObj('node-0:9000', ['node-2:9000', 'node-3:9000'], consumers=[self.mac_to_port])
+        syncObj = SyncObj('node-0:9000', [], consumers=[self.mac_to_port])
 
 
     def add_flow(self, datapath, in_port, dst, src, actions):
