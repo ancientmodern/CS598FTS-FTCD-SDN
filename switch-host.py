@@ -29,8 +29,10 @@ class MultiSwitch(OVSSwitch):
     "Custom Switch() subclass that connects to different controllers"
 
     def start(self, controllers):
-        # Delete all flow table entries to disable the flow table
-        self.cmd('ovs-ofctl del-flows ' + self.name)
+        # Delete all flow table entries
+        self.cmd(f'ovs-ofctl del-flow {self.name}')
+        # Set the priority of the controller flow entry to 100, ensuring that all flows are directed to the controller
+        self.cmd(f'ovs-ofctl add-flow {self.name} cookie=0x0,table=0,priority=100,actions=CONTROLLER:65535')
         return OVSSwitch.start(self, cmap[self.name])
 
 
