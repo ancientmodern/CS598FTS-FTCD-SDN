@@ -31,7 +31,7 @@ class SimpleSwitch13(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
         self.mac_to_port = ReplDict()
-        syncObj = SyncObj('node-0:9000', ['node-2:9000', 'node-3:9000'], consumers=[self.mac_to_port])
+        syncObj = SyncObj('node-0:9000', [], consumers=[self.mac_to_port])
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
