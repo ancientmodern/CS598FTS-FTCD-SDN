@@ -4,7 +4,7 @@ import sys
 class kvStore(SyncObj):
     def __init__(self):
         super(kvStore, self).__init__('10.10.1.5:9000', ['10.10.1.4:9000'])
-        self.mac_to_port = {}
+        self.mac_to_port = {1: {}, 2: {}}
     
     @replicated
     def setDefault(self, dpid):
@@ -35,7 +35,6 @@ class caller:
     def print(self):
         self.kvStore.printAll()
 
-
 def get_input(v):
         if sys.version_info >= (3, 0):
             return input(v)
@@ -50,7 +49,7 @@ while True:
         continue
     else:
         print("cmd: ", cmd)
-        myCaller.add(cmd[0], cmd[1], cmd[2])
+        myCaller.add(int(cmd[0]), int(cmd[1]), int(cmd[2]))
         myCaller.print()
     
     
