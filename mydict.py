@@ -89,3 +89,6 @@ class ReplDict(SyncObjConsumer):
         if outer_key in self.__data:
             return self.__data[outer_key].get(inner_key, default)
         return default
+
+    def print_all(self):
+        print(self.__data)
