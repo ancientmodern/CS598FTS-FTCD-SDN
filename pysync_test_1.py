@@ -1,4 +1,5 @@
 from pysyncobj import SyncObj, replicated
+import sys
 
 class kvStore(SyncObj):
     def __init__(self):
@@ -34,7 +35,19 @@ class caller:
     def print(self):
         self.kvStore.printAll()
     
+def get_input(v):
+        if sys.version_info >= (3, 0):
+            return input(v)
+        else:
+            return raw_input(v)
+
 myCaller = caller()
-myCaller.add(1, 1, 1)
-myCaller.add(1, 2, 2)
-myCaller.print()
+
+while True:
+    cmd = get_input(">> ").split()
+    if not cmd:
+        continue
+    else:
+        print("cmd: ", cmd)
+        myCaller.add(cmd[0], cmd[1], cmd[2])
+        myCaller.print()
