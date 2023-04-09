@@ -28,6 +28,7 @@ c3 = RemoteController('c3', ip='10.10.1.3', port=6633)
 cmap = {'s1': c1, 's2': c2, 's3': c3}
 onlineControllers = {c1, c2, c3}
 
+
 class MultiSwitch(OVSSwitch):
     "Custom Switch() subclass that connects to different controllers"
 
@@ -38,8 +39,11 @@ class MultiSwitch(OVSSwitch):
                 time.sleep(0.01)
                 isc = self.connected()
                 if not isc:
+                    print("offline:", cmap[self.name])
                     onlineControllers.remove(cmap[self.name])
                     newCtl = random.choice(list(onlineControllers))
+                    print("new one:", newCtl)
+                    cmap[self.name] = newCtl
                     self.vsctl('set-controller', self.name, 'tcp:{}:{}'.format(newCtl.ip, newCtl.port))
 
         monitor_thread = Thread(target=isConnected)
