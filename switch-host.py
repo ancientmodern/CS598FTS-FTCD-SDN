@@ -10,6 +10,9 @@ from mininet.node import OVSSwitch, Controller, RemoteController
 from mininet.topolib import TreeTopo
 from mininet.log import setLogLevel
 from mininet.cli import CLI
+import time
+import random
+from threading import Thread
 
 setLogLevel('info')
 
@@ -22,13 +25,26 @@ c3 = RemoteController('c3', ip='10.10.1.3', port=6633)
 # c5 = RemoteController( 'c5', ip='10.10.1.6', port=6633 )
 
 # cmap = { 's1': [c1,c2,c3,c4,c5], 's2': [c1,c2,c3,c4,c5], 's3': [c1,c2,c3,c4,c5], 's4': [c1,c2,c3,c4,c5], 's5': [c1,c2,c3,c4,c5], 's6': [c1,c2,c3,c4,c5] }
-cmap = {'s1': [c1,c2,c3], 's2': [c1,c2,c3], 's3': [c1,c2,c3]}
-
+cmap = {'s1': [c1], 's2': [c2], 's3': [c3]}
+onlineControllers = {c1, c2, c3}
 
 class MultiSwitch(OVSSwitch):
     "Custom Switch() subclass that connects to different controllers"
 
     def start(self, controllers):
+        def isConnected():
+            time.sleep(5)
+            while True:
+                time.sleep(0.01)
+                isc = self.connected(self)
+                if not isc:
+                    onlineControllers.remove(cmap[self.name])
+                    newCtl = random.choice(list(onlineControllers))
+                    self.vsctl('set-controller', self.name, 'tcp:%s:%s'.format(newCtl.ip, newCtl.port))
+
+        monitor_thread = Thread(target=isConnected)
+        monitor_thread.daemon = True
+        monitor_thread.start()
         return OVSSwitch.start(self, cmap[self.name])
 
 
