@@ -38,6 +38,7 @@ class MultiSwitch(OVSSwitch):
             while True:
                 time.sleep(0.5)
                 isc = self.connected()
+                print(isc)
                 if not isc:
                     print("offline:", cmap[self.name])
                     onlineControllers.remove(cmap[self.name])
