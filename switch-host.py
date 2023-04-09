@@ -39,13 +39,17 @@ class MultiSwitch(OVSSwitch):
                 while True:
                     time.sleep(0.5)
                     # isc = self.connected()
-                    for uuid in self.controllerUUIDs():
-                        print("uuid: ", uuid)
+                    isc = False
+                    uuids = self.controllerUUIDs()
+                    print("uuids:", uuids)
+                    for uuid in uuids:
                         res = self.vsctl( '-- get Controller', uuid, 'is_connected' )
+                        print("uuid: ", uuid, "vsctl info:", res)
                         if 'true' in res: isc = True
-                        else: isc = (self.failMode == 'standalone')
-                    print("connect info:",isc, "vsctl info:", res)
+
+                    print("connect info:",isc)
                     if not isc:
+                        self.vsctl('del-controller', self.name)
                         print("offline:", cmap[self.name])
                         onlineControllers.remove(cmap[self.name])
                         newCtl = random.choice(list(onlineControllers))
