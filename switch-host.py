@@ -36,7 +36,7 @@ class MultiSwitch(OVSSwitch):
         def isConnected():
             time.sleep(10)
             while True:
-                time.sleep(0.01)
+                time.sleep(0.5)
                 isc = self.connected()
                 if not isc:
                     print("offline:", cmap[self.name])
