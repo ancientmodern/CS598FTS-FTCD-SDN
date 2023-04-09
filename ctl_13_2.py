@@ -102,11 +102,12 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         # only write when necessary, as a sync writing is time-consuming
         if in_port != self.mac_to_port.get_nested_item(dpid, src):
-            self.mac_to_port.set_nested_item(dpid, src, in_port, sync=True)
+            # try async (non-blocking) write
+            self.mac_to_port.set_nested_item(dpid, src, in_port)
 
-        if dst in self.mac_to_port.get(dpid):
-            out_port = self.mac_to_port.get_nested_item(dpid, dst)
-        else:
+        # reduce 2 gets to 1 get
+        out_port = self.mac_to_port.get_nested_item(dpid, dst, None)
+        if out_port is None:
             out_port = ofproto.OFPP_FLOOD
 
         actions = [parser.OFPActionOutput(out_port)]
