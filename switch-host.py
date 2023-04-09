@@ -40,8 +40,7 @@ class MultiSwitch(OVSSwitch):
                 if not isc:
                     onlineControllers.remove(cmap[self.name])
                     newCtl = random.choice(list(onlineControllers))
-                    print(type(newCtl.ip), type(newCtl.port))
-                    self.vsctl('set-controller', self.name, 'tcp:%s:%s'.format(newCtl.ip, newCtl.port))
+                    self.vsctl('set-controller', self.name, 'tcp:{}:{}'.format(newCtl.ip, newCtl.port))
 
         monitor_thread = Thread(target=isConnected)
         monitor_thread.daemon = True
