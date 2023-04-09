@@ -56,7 +56,7 @@ class MultiSwitch(OVSSwitch):
                         cmap[self.name] = newCtl
                         self.vsctl('set-controller', self.name, 'tcp:{}:{}'.format(newCtl.ip, newCtl.port))
                         sleep_cnt = 0
-                        while self.controllerUUIDs() is None:
+                        while self.controllerUUIDs() == []:
                             print(sleep_cnt)
                             sleep_cnt += 1
                             time.sleep(1)
