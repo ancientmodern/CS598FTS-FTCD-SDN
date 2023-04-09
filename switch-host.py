@@ -45,7 +45,7 @@ class MultiSwitch(OVSSwitch):
         monitor_thread = Thread(target=isConnected)
         monitor_thread.daemon = True
         monitor_thread.start()
-        return OVSSwitch.start(self, cmap[self.name])
+        return OVSSwitch.start(self, [cmap[self.name]])
 
 
 topo = TreeTopo(depth=2, fanout=2)
