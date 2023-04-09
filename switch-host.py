@@ -37,7 +37,7 @@ class MultiSwitch(OVSSwitch):
             def isConnected():
                 time.sleep(10)
                 while True:
-                    time.sleep(0.5)
+                    time.sleep(5)
                     # isc = self.connected()
                     isc = False
                     uuids = self.controllerUUIDs()
