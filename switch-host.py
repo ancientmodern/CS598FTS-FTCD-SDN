@@ -33,28 +33,29 @@ class MultiSwitch(OVSSwitch):
     "Custom Switch() subclass that connects to different controllers"
 
     def start(self, controllers):
-        def isConnected():
-            time.sleep(10)
-            while True:
-                time.sleep(0.5)
-                # isc = self.connected()
-                for uuid in self.controllerUUIDs():
-                    print("uuid: ", uuid)
-                    res = self.vsctl( '-- get Controller', uuid, 'is_connected' )
-                    if 'true' in res: isc = True
-                    else: isc = (self.failMode == 'standalone')
-                print("connect info:",isc, "vsctl info:", res)
-                if not isc:
-                    print("offline:", cmap[self.name])
-                    onlineControllers.remove(cmap[self.name])
-                    newCtl = random.choice(list(onlineControllers))
-                    print("new one:", newCtl)
-                    cmap[self.name] = newCtl
-                    self.vsctl('set-controller', self.name, 'tcp:{}:{}'.format(newCtl.ip, newCtl.port))
+        if self.name == 's2':
+            def isConnected():
+                time.sleep(10)
+                while True:
+                    time.sleep(0.5)
+                    # isc = self.connected()
+                    for uuid in self.controllerUUIDs():
+                        print("uuid: ", uuid)
+                        res = self.vsctl( '-- get Controller', uuid, 'is_connected' )
+                        if 'true' in res: isc = True
+                        else: isc = (self.failMode == 'standalone')
+                    print("connect info:",isc, "vsctl info:", res)
+                    if not isc:
+                        print("offline:", cmap[self.name])
+                        onlineControllers.remove(cmap[self.name])
+                        newCtl = random.choice(list(onlineControllers))
+                        print("new one:", newCtl)
+                        cmap[self.name] = newCtl
+                        self.vsctl('set-controller', self.name, 'tcp:{}:{}'.format(newCtl.ip, newCtl.port))
 
-        monitor_thread = Thread(target=isConnected)
-        monitor_thread.daemon = True
-        monitor_thread.start()
+            monitor_thread = Thread(target=isConnected)
+            monitor_thread.daemon = True
+            monitor_thread.start()
         return OVSSwitch.start(self, [cmap[self.name]])
 
 
