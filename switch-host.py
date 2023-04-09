@@ -36,7 +36,7 @@ class MultiSwitch(OVSSwitch):
             time.sleep(5)
             while True:
                 time.sleep(0.01)
-                isc = self.connected(self)
+                isc = self.connected()
                 if not isc:
                     onlineControllers.remove(cmap[self.name])
                     newCtl = random.choice(list(onlineControllers))
