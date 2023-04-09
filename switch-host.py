@@ -37,8 +37,13 @@ class MultiSwitch(OVSSwitch):
             time.sleep(10)
             while True:
                 time.sleep(0.5)
-                isc = self.connected()
-                print("connect info:",isc)
+                # isc = self.connected()
+                for uuid in self.controllerUUIDs():
+                    print("uuid: ", uuid)
+                    res = self.vsctl( '-- get Controller', uuid, 'is_connected' )
+                    if 'true' in res: isc = True
+                    else: isc = (self.failMode == 'standalone')
+                print("connect info:",isc, "vsctl info:", res)
                 if not isc:
                     print("offline:", cmap[self.name])
                     onlineControllers.remove(cmap[self.name])
