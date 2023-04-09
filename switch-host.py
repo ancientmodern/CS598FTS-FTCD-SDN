@@ -37,7 +37,6 @@ class MultiSwitch(OVSSwitch):
             def isConnected():
                 time.sleep(10)
                 while True:
-                    time.sleep(5)
                     # isc = self.connected()
                     isc = False
                     uuids = self.controllerUUIDs()
@@ -56,6 +55,11 @@ class MultiSwitch(OVSSwitch):
                         print("new one:", newCtl)
                         cmap[self.name] = newCtl
                         self.vsctl('set-controller', self.name, 'tcp:{}:{}'.format(newCtl.ip, newCtl.port))
+                        sleep_cnt = 0
+                        while self.controllerUUIDs() is None:
+                            print(sleep_cnt)
+                            sleep_cnt += 1
+                            time.sleep(1)
 
             monitor_thread = Thread(target=isConnected)
             monitor_thread.daemon = True
