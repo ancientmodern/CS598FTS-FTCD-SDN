@@ -33,7 +33,7 @@ class MultiSwitch(OVSSwitch):
 
     def start(self, controllers):
         def isConnected():
-            time.sleep(5)
+            time.sleep(10)
             while True:
                 time.sleep(0.01)
                 isc = self.connected()
