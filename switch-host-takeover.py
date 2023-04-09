@@ -39,9 +39,9 @@ class MultiSwitch(OVSSwitch):
                 while True:
                     # isc = self.connected()
                     isc = False
-                    uuid = self.vsctl('-- get Bridge', self, 'Controller')
+                    uuid = self.vsctl('-- get Bridge', self, 'Controller').strip()
                     print("uuid:", uuid)
-                    uuid = uuid[1:-2]
+                    uuid = uuid[1:-1]
                     res = self.vsctl( '-- get Controller', uuid, 'is_connected' )
                     print("uuid: ", uuid, "vsctl info:", res)
                     if 'true' in res: isc = True
@@ -57,12 +57,12 @@ class MultiSwitch(OVSSwitch):
                         self.vsctl('set-controller', self.name, 'tcp:{}:{}'.format(newCtl.ip, newCtl.port))
                         print('set-controller', self.name, 'tcp:{}:{}'.format(newCtl.ip, newCtl.port))
                         sleep_cnt = 0
-                        new_uuid = self.vsctl('-- get Bridge', self, 'Controller')[1:-2]
+                        new_uuid = self.vsctl('-- get Bridge', self, 'Controller').strip()[1:-1]
                         while new_uuid == uuid:
                             print(sleep_cnt)
                             sleep_cnt += 1
                             time.sleep(1)
-                            new_uuid = self.vsctl('-- get Bridge', self, 'Controller')[1:-2]
+                            new_uuid = self.vsctl('-- get Bridge', self, 'Controller').strip()[1:-1]
 
             monitor_thread = Thread(target=isConnected)
             monitor_thread.daemon = True
