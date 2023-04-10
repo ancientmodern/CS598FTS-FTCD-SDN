@@ -46,7 +46,8 @@ class MultiSwitch(OVSSwitch):
 
                 if not isc:
                     self.vsctl('del-controller', self.name)
-                    onlineControllers.remove(cmap[self.name])
+                    if cmap[self.name] in onlineControllers: 
+                        onlineControllers.remove(cmap[self.name])
                     newCtl = random.choice(list(onlineControllers))
                     cmap[self.name] = newCtl
                     self.vsctl('set-controller', self.name, 'tcp:{}:{}'.format(newCtl.ip, newCtl.port))
