@@ -24,6 +24,7 @@ from ryu.lib.packet import ether_types
 from pysyncobj import SyncObj
 from mydict import ReplDict
 import time
+import numpy as np
 
 
 class SimpleSwitch13(app_manager.RyuApp):
@@ -38,6 +39,22 @@ class SimpleSwitch13(app_manager.RyuApp):
     def stop(self):
         with open('logs/ctl_plane_latency_3.log', 'w') as f:
             f.write('\n'.join([str(latency) for latency in self.latency_list]))
+
+        minimum = min(self.latency_list)
+        maximum = max(self.latency_list)
+        average = sum(self.latency_list) / len(self.latency_list)
+        mdev = np.std(self.latency_list)
+        median = np.median(self.latency_list)
+        p50 = np.percentile(self.latency_list, 50)
+        p99 = np.percentile(self.latency_list, 99)
+
+        print("Min:", minimum)
+        print("Max:", maximum)
+        print("Avg:", average)
+        print("Mdev:", mdev)
+        print("Median:", median)
+        print("P50:", p50)
+        print("P99:", p99)
 
         super(SimpleSwitch13, self).stop()
 
