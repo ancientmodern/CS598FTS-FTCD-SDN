@@ -35,9 +35,9 @@ class MultiSwitch(OVSSwitch):
     def start(self, controllers):
         self.stop_event = Event()
 
-        def isConnected():
+        def isConnected(stop_event):
             time.sleep(10)
-            while not self.stop_event.is_set():
+            while not stop_event.is_set():
                 # isc = self.connected()
                 isc = False
                 uuid = self.vsctl('-- get Bridge', self, 'Controller').strip()

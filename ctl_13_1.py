@@ -37,7 +37,7 @@ class SimpleSwitch13(app_manager.RyuApp):
 
     def stop(self):
         with open('logs/ctl_plane_latency_1.log', 'w') as f:
-            f.write('\n'.join(self.latency_list))
+            f.write('\n'.join([str(latency) for latency in self.latency_list]))
 
         super(SimpleSwitch13, self).stop()
 
