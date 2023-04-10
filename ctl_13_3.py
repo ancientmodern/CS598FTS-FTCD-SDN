@@ -23,6 +23,7 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 from pysyncobj import SyncObj
 from mydict import ReplDict
+import time
 
 
 class SimpleSwitch13(app_manager.RyuApp):
@@ -32,6 +33,13 @@ class SimpleSwitch13(app_manager.RyuApp):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
         self.mac_to_port = ReplDict()
         syncObj = SyncObj('node-3:9000', ['node-1:9000', 'node-2:9000'], consumers=[self.mac_to_port])
+        self.latency_list = []
+
+    def stop(self):
+        with open('logs/ctl_plane_latency_3.log', 'w') as f:
+            f.write('\n'.join(self.latency_list))
+
+        super(SimpleSwitch13, self).stop()
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
@@ -66,8 +74,15 @@ class SimpleSwitch13(app_manager.RyuApp):
                                     match=match, instructions=inst)
         datapath.send_msg(mod)
 
+        # Log Flow-Mod timestamp
+        flow_mod_time = time.time()
+        return flow_mod_time
+
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
+        # Log Packet-In timestamp
+        packet_in_time = time.time()
+
         # If you hit this you might want to increase
         # the "miss_send_length" of your switch
         if ev.msg.msg_len < ev.msg.total_len:
@@ -118,10 +133,15 @@ class SimpleSwitch13(app_manager.RyuApp):
             # verify if we have a valid buffer_id, if yes avoid to send both
             # flow_mod & packet_out
             if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                flow_mod_time = self.add_flow(datapath, 1, match, actions, msg.buffer_id)
                 return
             else:
-                self.add_flow(datapath, 1, match, actions)
+                flow_mod_time = self.add_flow(datapath, 1, match, actions)
+
+            control_plane_latency_ms = (flow_mod_time - packet_in_time) * 1000
+            self.latency_list.append(control_plane_latency_ms)
+            self.logger.info("Control plane latency: %s ms", control_plane_latency_ms)
+
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
             data = msg.data

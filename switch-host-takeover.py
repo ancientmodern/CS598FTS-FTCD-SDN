@@ -12,7 +12,7 @@ from mininet.log import setLogLevel
 from mininet.cli import CLI
 import time
 import random
-from threading import Thread
+from threading import Thread, Event
 
 setLogLevel('info')
 
@@ -33,25 +33,27 @@ class MultiSwitch(OVSSwitch):
     "Custom Switch() subclass that connects to different controllers"
 
     def start(self, controllers):
+        self.stop_event = Event()
 
         def isConnected():
             time.sleep(10)
-            while True:
+            while not self.stop_event.is_set():
                 # isc = self.connected()
                 isc = False
                 uuid = self.vsctl('-- get Bridge', self, 'Controller').strip()
                 uuid = uuid[1:-1]
-                res = self.vsctl( '-- get Controller', uuid, 'is_connected' )
-                if 'true' in res: isc = True
+                res = self.vsctl('-- get Controller', uuid, 'is_connected')
+                if 'true' in res:
+                    isc = True
 
                 if not isc:
                     self.vsctl('del-controller', self.name)
-                    if cmap[self.name] in onlineControllers: 
+                    if cmap[self.name] in onlineControllers:
                         onlineControllers.remove(cmap[self.name])
                     newCtl = random.choice(list(onlineControllers))
                     cmap[self.name] = newCtl
                     self.vsctl('set-controller', self.name, 'tcp:{}:{}'.format(newCtl.ip, newCtl.port))
-                    
+
                     sleep_cnt = 0
                     new_uuid = self.vsctl('-- get Bridge', self, 'Controller').strip()[1:-1]
                     new_res = self.vsctl('-- get Controller', new_uuid, 'is_connected')
@@ -62,10 +64,14 @@ class MultiSwitch(OVSSwitch):
                         new_uuid = self.vsctl('-- get Bridge', self, 'Controller').strip()[1:-1]
                         new_res = self.vsctl('-- get Controller', new_uuid, 'is_connected')
 
-        monitor_thread = Thread(target=isConnected)
+        monitor_thread = Thread(target=isConnected, args=(self.stop_event,))
         monitor_thread.daemon = True
         monitor_thread.start()
         return OVSSwitch.start(self, [cmap[self.name]])
+
+    def stop(self, deleteIntfs=True):
+        self.stop_event.set()
+        super(MultiSwitch, self).stop(deleteIntfs)
 
 
 topo = TreeTopo(depth=2, fanout=2)
