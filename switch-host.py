@@ -6,13 +6,10 @@ different controllers, by creating a custom Switch() subclass.
 """
 
 from mininet.net import Mininet
-from mininet.node import OVSSwitch, Controller, RemoteController
+from mininet.node import OVSSwitch, RemoteController
 from mininet.topolib import TreeTopo
 from mininet.log import setLogLevel
 from mininet.cli import CLI
-import time
-import random
-from threading import Thread
 
 setLogLevel('info')
 
@@ -33,37 +30,6 @@ class MultiSwitch(OVSSwitch):
     "Custom Switch() subclass that connects to different controllers"
 
     def start(self, controllers):
-        # if self.name == 's2':
-        #     def isConnected():
-        #         time.sleep(10)
-        #         while True:
-        #             # isc = self.connected()
-        #             isc = False
-        #             uuids = self.controllerUUIDs()
-        #             print("uuids:", uuids)
-        #             for uuid in uuids:
-        #                 res = self.vsctl( '-- get Controller', uuid, 'is_connected' )
-        #                 print("uuid: ", uuid, "vsctl info:", res)
-        #                 if 'true' in res: isc = True
-
-        #             print("connect info:",isc)
-        #             if not isc:
-        #                 self.vsctl('del-controller', self.name)
-        #                 print("offline:", cmap[self.name])
-        #                 onlineControllers.remove(cmap[self.name])
-        #                 newCtl = random.choice(list(onlineControllers))
-        #                 print("new one:", newCtl)
-        #                 cmap[self.name] = newCtl
-        #                 self.vsctl('set-controller', self.name, 'tcp:{}:{}'.format(newCtl.ip, newCtl.port))
-        #                 sleep_cnt = 0
-        #                 while self.controllerUUIDs() == uuids:
-        #                     print(sleep_cnt)
-        #                     sleep_cnt += 1
-        #                     time.sleep(1)
-
-        #     monitor_thread = Thread(target=isConnected)
-        #     monitor_thread.daemon = True
-        #     monitor_thread.start()
         return OVSSwitch.start(self, [cmap[self.name]])
 
 
