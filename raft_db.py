@@ -1,9 +1,15 @@
 import socket
 from pysyncobj import SyncObj
 from mydict import ReplDict
+import sys
 
 mac_to_port = ReplDict()
-syncObj = SyncObj('node-1:9000', ['node-2:9000', 'node-3:9000'], consumers=[mac_to_port])
+if sys.argv[1] == 1:
+    syncObj = SyncObj('node-1:9000', ['node-2:9000', 'node-3:9000'], consumers=[mac_to_port])
+elif sys.argv[1] == 2:
+    syncObj = SyncObj('node-2:9000', ['node-1:9000', 'node-3:9000'], consumers=[mac_to_port])
+elif sys.argv[1] == 3:
+    syncObj = SyncObj('node-3:9000', ['node-1:9000', 'node-2:9000'], consumers=[mac_to_port])
 
 
 def send_msg(sock, msg):
@@ -40,4 +46,5 @@ def main():
             # mac_to_port[key] = val
             mac_to_port.set(key, val)
 
-main()
+if __name__ == "__main__":
+    main()
