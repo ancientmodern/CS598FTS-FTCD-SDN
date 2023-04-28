@@ -35,21 +35,30 @@ class SimpleServer:
             connection, _ = sock.accept()
             response = connection.recv(10)
             set_byte = response[0]
-            dpid = int.from_bytes(response[1:3], "big")
-            mac_address = decode_mac_address(response[3:9])
+            dpid = int.from_bytes(response[1:3], "big")  # only for print
+            mac_address = decode_mac_address(response[3:9])  # only for print
             val = response[9]
             key = response[1:9]  # Directly use bytearrays as keys for efficiency
-
-            print(
-                f"Receive set_byte: {set_byte}, dpid: {dpid}, mac_address: {mac_address}, val: {val}"
-            )
 
             if set_byte == 0x00:
                 # Get request
                 val = self.mac_to_port.get(key)
+                print(
+                    f"GET: dpid = {dpid}, mac_address = {mac_address}, get_val: {val}"
+                )
                 val = val if val is not None else 0xFF  # 0xFF means key does not exist
                 connection.send(val.to_bytes(1, "big"))
             else:
+                print(
+                    f"SET: dpid = {dpid}, mac_address = {mac_address}, set_val: {val}"
+                )
                 self.mac_to_port[key] = val
 
             connection.close()
+
+        sock.close()
+
+
+if __name__ == "__main__":
+    server = SimpleServer("/tmp/sdn_uds.sock")
+    server.run()

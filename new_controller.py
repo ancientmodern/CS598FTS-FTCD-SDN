@@ -46,13 +46,14 @@ class SimpleSwitch13(app_manager.RyuApp):
         p50 = np.percentile(self.latency_list, 50)
         p99 = np.percentile(self.latency_list, 99)
 
-        print("Min:", minimum)
-        print("Max:", maximum)
-        print("Avg:", average)
-        print("Mdev:", mdev)
+        print("\n==================================================")
+        print("Min   :", minimum)
+        print("Max   :", maximum)
+        print("Avg   :", average)
+        print("Mdev  :", mdev)
         print("Median:", median)
-        print("P50:", p50)
-        print("P99:", p99)
+        print("P50   :", p50)
+        print("P99   :", p99)
 
         super(SimpleSwitch13, self).stop()
 
@@ -126,9 +127,10 @@ class SimpleSwitch13(app_manager.RyuApp):
         dst = eth.dst
         src = eth.src
 
-        dpid = format(datapath.id, "d").zfill(16)
+        # dpid = format(datapath.id, "d").zfill(16)
+        dpid = datapath.id  # raw int
 
-        self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+        self.logger.info("packet in %d %s %s %s", dpid, src, dst, in_port)
 
         # learn a mac address to avoid FLOOD next time.
         # only write when necessary, as a sync writing is time-consuming
