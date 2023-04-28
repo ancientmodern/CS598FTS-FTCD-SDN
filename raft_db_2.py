@@ -23,20 +23,23 @@ def recvall(sock, n):
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # bind the socket to a local address and port
-# server_address = ('localhost', 12345)
-server_address = '/tmp/sdn-uds.sock'
+server_address = ('localhost', 12345)
+# server_address = '/tmp/sdn-uds.sock'
 server_socket.bind(server_address)
 while True:
-    data = recvall(server_socket)
+    data = recvall(server_socket, 10)
     # get request
     if data[0] == 0x00:
-        key = data[1:9]
+        key = bytes(data[1:9])
         val = mac_to_port.get(key)
         # val = mac_to_port[key]
-        send_msg(val)
+        print(val)
+        print(server_socket)
+        send_msg(server_socket, val)
     # set request
     elif data[0] == 0x01:
-        key = data[1:9]
+        key = bytes(data[1:9])
         val = data[9]
         # mac_to_port[key] = val
+        print(val)
         mac_to_port.set(key, val)
