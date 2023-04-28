@@ -5,16 +5,23 @@ import sys
 
 mac_to_port = ReplDict()
 if sys.argv[1] == 1:
-    syncObj = SyncObj('node-1:9000', ['node-2:9000', 'node-3:9000'], consumers=[mac_to_port])
+    syncObj = SyncObj(
+        "node-1:9000", ["node-2:9000", "node-3:9000"], consumers=[mac_to_port]
+    )
 elif sys.argv[1] == 2:
-    syncObj = SyncObj('node-2:9000', ['node-1:9000', 'node-3:9000'], consumers=[mac_to_port])
+    syncObj = SyncObj(
+        "node-2:9000", ["node-1:9000", "node-3:9000"], consumers=[mac_to_port]
+    )
 elif sys.argv[1] == 3:
-    syncObj = SyncObj('node-3:9000', ['node-1:9000', 'node-2:9000'], consumers=[mac_to_port])
+    syncObj = SyncObj(
+        "node-3:9000", ["node-1:9000", "node-2:9000"], consumers=[mac_to_port]
+    )
 
 
 def send_msg(sock, msg):
     # Prefix each message with a 4-byte length (network byte order)
     sock.sendall(msg)
+
 
 def recvall(sock, n):
     data = bytearray(n)
@@ -25,11 +32,12 @@ def recvall(sock, n):
         data.extend(packet)
     return data
 
+
 def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # bind the socket to a local address and port
     # server_address = ('localhost', 12345)
-    server_address = '/tmp/sdn-uds.sock'
+    server_address = "/tmp/sdn-uds.sock"
     server_socket.bind(server_address)
     while True:
         data = recvall(server_socket)
@@ -45,6 +53,7 @@ def main():
             val = data[9]
             # mac_to_port[key] = val
             mac_to_port.set(key, val)
+
 
 if __name__ == "__main__":
     main()

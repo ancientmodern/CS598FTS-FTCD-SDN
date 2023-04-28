@@ -37,21 +37,26 @@ class SimpleSwitch(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch, self).__init__(*args, **kwargs)
         self.mac_to_port = ReplDict()
-        syncObj = SyncObj('node-0:9000', [], consumers=[self.mac_to_port])
-
+        syncObj = SyncObj("node-0:9000", [], consumers=[self.mac_to_port])
 
     def add_flow(self, datapath, in_port, dst, src, actions):
         ofproto = datapath.ofproto
 
         match = datapath.ofproto_parser.OFPMatch(
-            in_port=in_port,
-            dl_dst=haddr_to_bin(dst), dl_src=haddr_to_bin(src))
+            in_port=in_port, dl_dst=haddr_to_bin(dst), dl_src=haddr_to_bin(src)
+        )
 
         mod = datapath.ofproto_parser.OFPFlowMod(
-            datapath=datapath, match=match, cookie=0,
-            command=ofproto.OFPFC_ADD, idle_timeout=0, hard_timeout=0,
+            datapath=datapath,
+            match=match,
+            cookie=0,
+            command=ofproto.OFPFC_ADD,
+            idle_timeout=0,
+            hard_timeout=0,
             priority=ofproto.OFP_DEFAULT_PRIORITY,
-            flags=ofproto.OFPFF_SEND_FLOW_REM, actions=actions)
+            flags=ofproto.OFPFF_SEND_FLOW_REM,
+            actions=actions,
+        )
         datapath.send_msg(mod)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
@@ -95,8 +100,12 @@ class SimpleSwitch(app_manager.RyuApp):
             data = msg.data
 
         out = datapath.ofproto_parser.OFPPacketOut(
-            datapath=datapath, buffer_id=msg.buffer_id, in_port=msg.in_port,
-            actions=actions, data=data)
+            datapath=datapath,
+            buffer_id=msg.buffer_id,
+            in_port=msg.in_port,
+            actions=actions,
+            data=data,
+        )
         datapath.send_msg(out)
 
     @set_ev_cls(ofp_event.EventOFPPortStatus, MAIN_DISPATCHER)

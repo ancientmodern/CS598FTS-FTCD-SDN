@@ -33,12 +33,14 @@ class SimpleSwitch13(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
         self.mac_to_port = ReplDict()
-        syncObj = SyncObj('node-3:9000', ['node-1:9000', 'node-2:9000'], consumers=[self.mac_to_port])
+        syncObj = SyncObj(
+            "node-3:9000", ["node-1:9000", "node-2:9000"], consumers=[self.mac_to_port]
+        )
         self.latency_list = []
 
     def stop(self):
-        with open('logs/ctl_plane_latency_3.log', 'w') as f:
-            f.write('\n'.join([str(latency) for latency in self.latency_list]))
+        with open("logs/ctl_plane_latency_3.log", "w") as f:
+            f.write("\n".join([str(latency) for latency in self.latency_list]))
 
         minimum = min(self.latency_list)
         maximum = max(self.latency_list)
@@ -72,23 +74,28 @@ class SimpleSwitch13(app_manager.RyuApp):
         # truncated packet data. In that case, we cannot output packets
         # correctly.  The bug has been fixed in OVS v2.1.0.
         match = parser.OFPMatch()
-        actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
-                                          ofproto.OFPCML_NO_BUFFER)]
+        actions = [
+            parser.OFPActionOutput(ofproto.OFPP_CONTROLLER, ofproto.OFPCML_NO_BUFFER)
+        ]
         self.add_flow(datapath, 0, match, actions)
 
     def add_flow(self, datapath, priority, match, actions, buffer_id=None):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
-        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
-                                             actions)]
+        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
         if buffer_id:
-            mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id,
-                                    priority=priority, match=match,
-                                    instructions=inst)
+            mod = parser.OFPFlowMod(
+                datapath=datapath,
+                buffer_id=buffer_id,
+                priority=priority,
+                match=match,
+                instructions=inst,
+            )
         else:
-            mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
-                                    match=match, instructions=inst)
+            mod = parser.OFPFlowMod(
+                datapath=datapath, priority=priority, match=match, instructions=inst
+            )
         datapath.send_msg(mod)
 
         # Log Flow-Mod timestamp
@@ -103,13 +110,16 @@ class SimpleSwitch13(app_manager.RyuApp):
         # If you hit this you might want to increase
         # the "miss_send_length" of your switch
         if ev.msg.msg_len < ev.msg.total_len:
-            self.logger.debug("packet truncated: only %s of %s bytes",
-                              ev.msg.msg_len, ev.msg.total_len)
+            self.logger.debug(
+                "packet truncated: only %s of %s bytes",
+                ev.msg.msg_len,
+                ev.msg.total_len,
+            )
         msg = ev.msg
         datapath = msg.datapath
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
-        in_port = msg.match['in_port']
+        in_port = msg.match["in_port"]
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
@@ -150,7 +160,9 @@ class SimpleSwitch13(app_manager.RyuApp):
             # verify if we have a valid buffer_id, if yes avoid to send both
             # flow_mod & packet_out
             if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                flow_mod_time = self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                flow_mod_time = self.add_flow(
+                    datapath, 1, match, actions, msg.buffer_id
+                )
                 return
             else:
                 flow_mod_time = self.add_flow(datapath, 1, match, actions)
@@ -163,8 +175,13 @@ class SimpleSwitch13(app_manager.RyuApp):
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
             data = msg.data
 
-        out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
-                                  in_port=in_port, actions=actions, data=data)
+        out = parser.OFPPacketOut(
+            datapath=datapath,
+            buffer_id=msg.buffer_id,
+            in_port=in_port,
+            actions=actions,
+            data=data,
+        )
         datapath.send_msg(out)
 
         self.mac_to_port.print_all()
