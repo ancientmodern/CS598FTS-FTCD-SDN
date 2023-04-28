@@ -26,11 +26,8 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ('localhost', 12345)
 # server_address = '/tmp/sdn-uds.sock'
 server_socket.bind(server_address)
-print(1)
 server_socket.listen(1)
-print(2)
 client_socket, address = server_socket.accept()
-print(3)
 while True:
     print("Waiting for incoming connections...")
     data = recvall(client_socket, 10)
@@ -39,7 +36,6 @@ while True:
     if data[0] == 0x00:
         key = bytes(data[1:9])
         val = mac_to_port.get(key)
-        # val = mac_to_port[key]
         print("get val:",val)
         print("socket:",client_socket)
         send_msg(client_socket, val)
@@ -47,6 +43,5 @@ while True:
     elif data[0] == 0x01:
         key = bytes(data[1:9])
         val = data[9]
-        # mac_to_port[key] = val
         print("set val:",val)
         mac_to_port.set(key, val)
