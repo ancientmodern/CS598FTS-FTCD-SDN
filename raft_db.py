@@ -35,14 +35,14 @@ def main():
         data = recvall(server_socket)
         # get request
         if data[0] == 0x00:
-            key = data[1:8]
+            key = data[1:9]
             val = mac_to_port.get(key)
             # val = mac_to_port[key]
             send_msg(val)
         # set request
         elif data[0] == 0x01:
-            key = data[1:8]
-            val = data[7]
+            key = data[1:9]
+            val = data[9]
             # mac_to_port[key] = val
             mac_to_port.set(key, val)
 

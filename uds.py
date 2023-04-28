@@ -16,8 +16,8 @@ def _send_request(set_byte, dpid, mac_address, val = 0):
 
     msg = bytearray(10)
     msg[0] = set_byte
-    msg[1:2] = dpid
-    msg[3:8] = mac_bytes
+    msg[1:3] = dpid
+    msg[3:9] = mac_bytes
     msg[9] = val
 
     server_address = '/tmp/sdn-uds.sock'
