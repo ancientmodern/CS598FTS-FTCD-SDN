@@ -1,14 +1,14 @@
 import socket
 
-def get(dpid, mac_address):
+def get(dpid: int, mac_address: str) -> int:
     set_byte = 0x00
     return _send_request(set_byte, dpid, mac_address)
 
-def set(dpid, mac_address, val):
+def set(dpid: int, mac_address: str, val: int) -> None:
     set_byte = 0x01
     _send_request(set_byte, dpid, mac_address, val)
 
-def _send_request(set_byte, dpid, mac_address, val = 0):
+def _send_request(set_byte: int, dpid: int, mac_address: str, val: int = 0) -> int:
     mac_bytes = bytes.fromhex(mac_address.replace(':', ''))
 
     if len(mac_bytes) != 6:
