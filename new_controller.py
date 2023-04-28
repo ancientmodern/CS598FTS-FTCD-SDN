@@ -23,7 +23,7 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 import time
 import numpy as np
-import uds
+from uds import UdsClient
 
 
 class SimpleSwitch13(app_manager.RyuApp):
@@ -32,6 +32,7 @@ class SimpleSwitch13(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
         self.latency_list = []
+        self.client = UdsClient("/tmp/sdn_uds.sock")
 
     def stop(self):
         with open("logs/ctl_plane_latency.log", "w") as f:
@@ -126,26 +127,16 @@ class SimpleSwitch13(app_manager.RyuApp):
         src = eth.src
 
         dpid = format(datapath.id, "d").zfill(16)
-        # self.mac_to_port.setdefault(dpid, {}, sync=True)
-
-        # only write when necessary, as a sync writing is time-consuming
-        # if dpid not in self.mac_to_port:
-        #     self.mac_to_port.set(dpid, {}, sync=True)
 
         self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
         # learn a mac address to avoid FLOOD next time.
-        # self.mac_to_port[dpid][src] = in_port
-
-        uds.set(dpid, src, in_port)
-
         # only write when necessary, as a sync writing is time-consuming
-        # if in_port != self.mac_to_port.get_nested_item(dpid, src):
-        #     # try async (non-blocking) write
-        #     self.mac_to_port.set_nested_item(dpid, src, in_port)
+        if in_port != self.client.get(dpid, src):
+            self.client.set(dpid, src, in_port)
 
         # reduce 2 gets to 1 get
-        out_port = uds.get(dpid, dst)
+        out_port = self.client.get(dpid, dst)
         if out_port is None:
             out_port = ofproto.OFPP_FLOOD
 

@@ -131,7 +131,6 @@ class SimpleSwitch13(app_manager.RyuApp):
         src = eth.src
 
         dpid = format(datapath.id, "d").zfill(16)
-        # self.mac_to_port.setdefault(dpid, {}, sync=True)
 
         # only write when necessary, as a sync writing is time-consuming
         if dpid not in self.mac_to_port:
