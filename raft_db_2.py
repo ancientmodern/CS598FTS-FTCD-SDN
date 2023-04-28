@@ -9,6 +9,7 @@ syncObj = SyncObj('node-2:9000', ['node-1:9000', 'node-3:9000'], consumers=[mac_
 
 def send_msg(sock, msg):
     # Prefix each message with a 4-byte length (network byte order)
+    print("send msg:", msg)
     sock.sendall(msg)
 
 def recvall(sock, n):
@@ -20,26 +21,32 @@ def recvall(sock, n):
         data.extend(packet)
     return data
 
-
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # bind the socket to a local address and port
 server_address = ('localhost', 12345)
 # server_address = '/tmp/sdn-uds.sock'
 server_socket.bind(server_address)
+print(1)
+server_socket.listen(1)
+print(2)
+client_socket, address = server_socket.accept()
+print(3)
 while True:
-    data = recvall(server_socket, 10)
+    print("Waiting for incoming connections...")
+    data = recvall(client_socket, 10)
+    print("Connected to", client_socket)
     # get request
     if data[0] == 0x00:
         key = bytes(data[1:9])
         val = mac_to_port.get(key)
         # val = mac_to_port[key]
-        print(val)
-        print(server_socket)
-        send_msg(server_socket, val)
+        print("get val:",val)
+        print("socket:",client_socket)
+        send_msg(client_socket, val)
     # set request
     elif data[0] == 0x01:
         key = bytes(data[1:9])
         val = data[9]
         # mac_to_port[key] = val
-        print(val)
+        print("set val:",val)
         mac_to_port.set(key, val)
