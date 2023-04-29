@@ -96,8 +96,8 @@ class SimpleSwitch13(app_manager.RyuApp):
         datapath.send_msg(mod)
 
         # Log Flow-Mod timestamp
-        flow_mod_time = time.time()
-        return flow_mod_time
+        # flow_mod_time = time.time()
+        # return flow_mod_time
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
@@ -150,16 +150,10 @@ class SimpleSwitch13(app_manager.RyuApp):
             # verify if we have a valid buffer_id, if yes avoid to send both
             # flow_mod & packet_out
             if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                flow_mod_time = self.add_flow(
-                    datapath, 1, match, actions, msg.buffer_id
-                )
+                self.add_flow(datapath, 1, match, actions, msg.buffer_id)
                 return
             else:
-                flow_mod_time = self.add_flow(datapath, 1, match, actions)
-
-            control_plane_latency_ms = (flow_mod_time - packet_in_time) * 1000
-            self.latency_list.append(control_plane_latency_ms)
-            self.logger.info("Control plane latency: %s ms", control_plane_latency_ms)
+                self.add_flow(datapath, 1, match, actions)
 
         data = None
         if msg.buffer_id == ofproto.OFP_NO_BUFFER:
@@ -173,3 +167,7 @@ class SimpleSwitch13(app_manager.RyuApp):
             data=data,
         )
         datapath.send_msg(out)
+
+        control_plane_latency_ms = (time.time() - packet_in_time) * 1000
+        self.latency_list.append(control_plane_latency_ms)
+        self.logger.info("Control plane latency: %s ms", control_plane_latency_ms)
