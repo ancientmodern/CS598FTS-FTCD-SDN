@@ -57,7 +57,7 @@ class SimpleServer:
                 print(
                     f"SET: dpid = {dpid}, mac_address = {mac_address}, set_val: {val}"
                 )
-                self.mac_to_port.set(key, val)
+                self.mac_to_port.set(key, val, sync=True)
                 # self.mac_to_port[key] = val
 
             connection.close()
