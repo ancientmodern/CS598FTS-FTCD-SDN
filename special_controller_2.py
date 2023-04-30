@@ -143,9 +143,17 @@ class SimpleSwitch13(app_manager.RyuApp):
         if out_port is None:
             out_port = ofproto.OFPP_FLOOD
 
-        if dpid == 1 and self.count < 30:
+        if dpid == 1 and self.count < 300:
             out_port = ofproto.OFPP_FLOOD
             self.count += 1
+            self.logger.info(
+                "do not learn %d %s %s %s, as count = %d",
+                dpid,
+                src,
+                dst,
+                in_port,
+                self.count,
+            )
 
         actions = [parser.OFPActionOutput(out_port)]
 
