@@ -145,6 +145,7 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         if dpid == 1 and self.count < 300:
             out_port = ofproto.OFPP_FLOOD
+            time.sleep(0.01)
             self.count += 1
             self.logger.info(
                 "do not learn %d %s %s %s, as count = %d",
