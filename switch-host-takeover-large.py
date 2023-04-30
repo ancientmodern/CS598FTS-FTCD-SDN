@@ -22,9 +22,13 @@ c1 = RemoteController("c1", ip="10.10.1.4", port=6633)
 c2 = RemoteController("c2", ip="10.10.1.5", port=6633)
 c3 = RemoteController("c3", ip="10.10.1.3", port=6633)
 
-cmap = {"s1": c1, "s2": c2, "s3": c3}
+cmap = {}
 onlineControllers = {c1, c2, c3}
 carr = [c1, c2, c3]
+
+for i in range(1, 64):
+    idx = (i - 1) // 21
+    cmap[f"s{i}"] = carr[idx]
 
 
 class MultiSwitch(OVSSwitch):
@@ -84,8 +88,8 @@ class MultiSwitch(OVSSwitch):
         monitor_thread = Thread(target=isConnected, args=(self.stop_event,))
         monitor_thread.daemon = True
         monitor_thread.start()
-        idx = (int(self.name[1:]) - 1) // 21
-        return OVSSwitch.start(self, [carr[idx]])
+
+        return OVSSwitch.start(self, [cmap[self.name]])
 
     def stop(self, deleteIntfs=True):
         self.stop_event.set()
