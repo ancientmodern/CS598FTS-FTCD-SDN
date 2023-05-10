@@ -1,0 +1,4 @@
+[submodule "shared_registers"]
+	path = shared_registers
+	url = https://github.com/ancientmodern/CS598FTS-Warmup.git
+	branch = uds
