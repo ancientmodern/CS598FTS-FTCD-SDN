@@ -1,59 +1,33 @@
-import socket
+import argparse
 from pysyncobj import SyncObj
 from mydict import ReplDict
-import sys
-
-mac_to_port = ReplDict()
-if sys.argv[1] == 1:
-    syncObj = SyncObj(
-        "node-1:9000", ["node-2:9000", "node-3:9000"], consumers=[mac_to_port]
-    )
-elif sys.argv[1] == 2:
-    syncObj = SyncObj(
-        "node-2:9000", ["node-1:9000", "node-3:9000"], consumers=[mac_to_port]
-    )
-elif sys.argv[1] == 3:
-    syncObj = SyncObj(
-        "node-3:9000", ["node-1:9000", "node-2:9000"], consumers=[mac_to_port]
-    )
+from uds import ServerBase
 
 
-def send_msg(sock, msg):
-    # Prefix each message with a 4-byte length (network byte order)
-    sock.sendall(msg)
+class RaftDBServer(ServerBase):
+    def __init__(self, server_addr, leader, followers):
+        super().__init__(server_addr)
+        self.mac_to_port = ReplDict()
+        self.syncObj = SyncObj(leader, followers, consumers=[self.mac_to_port])
 
+    def get_value(self, key, dpid, mac_address):
+        val = self.mac_to_port.get(key)
+        print(f"GET: dpid = {dpid}, mac_address = {mac_address}, get_val: {val}")
+        return val if val is not None else 0xFF
 
-def recvall(sock, n):
-    data = bytearray(n)
-    while len(data) < n:
-        packet = sock.recv(n - len(data))
-        if not packet:
-            return None
-        data.extend(packet)
-    return data
-
-
-def main():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # bind the socket to a local address and port
-    # server_address = ('localhost', 12345)
-    server_address = "/tmp/sdn-uds.sock"
-    server_socket.bind(server_address)
-    while True:
-        data = recvall(server_socket)
-        # get request
-        if data[0] == 0x00:
-            key = data[1:9]
-            val = mac_to_port.get(key)
-            # val = mac_to_port[key]
-            send_msg(val)
-        # set request
-        elif data[0] == 0x01:
-            key = data[1:9]
-            val = data[9]
-            # mac_to_port[key] = val
-            mac_to_port.set(key, val)
+    def set_value(self, key, value, dpid, mac_address):
+        print(f"SET: dpid = {dpid}, mac_address = {mac_address}, set_val: {value}")
+        self.mac_to_port.set(key, value, sync=True)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Start the server.")
+    parser.add_argument("--leader", help="Leader for the raft server.")
+    parser.add_argument("--followers", nargs="+", help="Followers for the raft server.")
+    args = parser.parse_args()
+
+    if args.leader is None or args.followers is None:
+        raise ValueError("Leader and followers must be provided for raft server.")
+    server = RaftDBServer("/tmp/sdn_uds.sock", args.leader, args.followers)
+
+    server.run()
