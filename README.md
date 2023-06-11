@@ -1,4 +1,4 @@
-# CS598FTS-FinalProject
+# A Fault-tolerant, Consistent and Distributed SDN Controller (FTCD-SDN)
 
 ## Install
 1. Install Mininet on node-0
